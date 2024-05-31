@@ -1,0 +1,43 @@
+public function uploadimage() {
+            if (isset($_FILES["image"]["size"]) && $_FILES["image"]["size"] > 0) {
+                
+                // print_r($_FILES);
+                // $extension =array('jpeg','jpg','png','gif');
+                $fileName = $_FILES["image"]["name"];
+                $sourcePath = $_FILES['image']['tmp_name'];
+                $extension= explode("/", $_FILES["image"]["type"]);
+                $size = $_FILES["image"]["size"];
+                $type = $extension[0];
+                $targetPath = "../../../assets/images/all/" . $fileName.".".$extension[1]; // Target path where file is to be stored
+                $dbPath = "all/" . $fileName.".".$extension[1];
+                if (move_uploaded_file($sourcePath, $targetPath)) {
+                    $path = $dbPath;
+                    $uploadarray = array(
+                        'uid'   => 1,
+                        'filename' => $fileName,
+                        'path'     => $dbPath,
+                        'size'     => $size,
+                        'extension' => $extension[1],
+                        'type'      => $extension[0],
+                        'insert_time' =>$this->insert_time,
+                        
+                    );
+
+                    $insertimage = DBS::Insert('uploads',$uploadarray);
+                    if($insertimage)
+                    {
+                        $response = array('response' => true,'message' => 'Image Uploaded Successfully!.');
+                    }
+                    else
+                    {
+                        $response = array('response' => false,'message' => 'Please try again later!.');
+                    }
+                }
+            }
+            else
+            {
+                $response = array('response' => false,'message' => 'Image size is out of range!.');
+            }
+        
+        echo json_encode($response);
+    }

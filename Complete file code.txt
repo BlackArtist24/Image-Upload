@@ -1,0 +1,32 @@
+    		if(isset($_FILES["file"]["size"]) && $_FILES["file"]["size"]>0)
+                    {
+                        if($GLOBALS['AppConfig']['IsCdn']){
+                            $x=CdnUpload($_FILES, "file", $GLOBALS['AppConfig']['CdnUploadDir']."uploads/","uploads/");  //Cdn Includes Function
+                            if($x){
+                                $file=$x['dbPath'];
+                            }
+                        }else{
+                            $fileName="file_".date('Y_m_d_H_i_s').'_'.rand(1000,9999);
+                            $sourcePath = $_FILES['file']['tmp_name'];
+                            $extension = explode("/", $_FILES["file"]["type"]);
+                            $targetPath = "uploads/".$fileName.".".$extension[1]; // Target path where file is to be stored
+                            $dbPath = "uploads/".$fileName.".".$extension[1];
+                            if(move_uploaded_file($sourcePath,$targetPath)){
+                                $file=$dbPath;
+                                /*Delete file */
+                                // if($user['file']!=""){
+                                //     if(file_exists($user['file'])){
+                                //         unlink($user['file']);
+                                //     }
+                                // }
+                            }
+                        }
+                    }else if($file!="") {
+                        $folderPath = "uploads/";
+                        $file_parts = explode(";base64,", $file);
+                        $file_type_aux = explode("file/", $file_parts[0]);
+                        $file_base64 = base64_decode($file_parts[1]);
+                        $fileName =  "file_".date('Y_m_d_H_i_s').'_'.rand(1000,9999).'.jpg';
+                        $file = $folderPath . $fileName;
+                        file_put_contents($file, $file_base64);
+                    }
